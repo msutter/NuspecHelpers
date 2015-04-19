@@ -11,10 +11,6 @@
     <description>Powershell Module providing Nuspec helper Functions</description>
     <copyright>Marc Sutter 2014</copyright>
     <tags>NuspecHelpers Nuspec Nuget</tags>
-    <dependencies>
-      <dependency id="eps" />
-      <dependency id="poweryaml" />
-    </dependencies>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
