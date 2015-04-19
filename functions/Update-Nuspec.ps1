@@ -59,7 +59,7 @@ Param
 
   # Specifies the tags
   [Parameter(Mandatory = $false)]
-  [string[]] $tags,
+  [string] $tags,
 
   # Specifies the dependencies
   [Parameter(Mandatory = $false)]
@@ -104,7 +104,15 @@ Param
   # Update Metadata String Params values
   foreach ($ParamKey in $MetadataStringParams ) {
     if ($PSBoundParameters.ContainsKey($ParamKey)) {
-      $NuspecXml.package.metadata.${ParamKey} = $PSBoundParameters.${ParamKey}
+      # Still existing ?
+      if ( $NuspecXml.package.metadata.${ParamKey}) {
+        $NuspecXml.package.metadata.${ParamKey} = $PSBoundParameters.${ParamKey}
+      } else {
+        $xmlElt  = $NuspecXml.CreateElement($ParamKey, $xmlns)
+        $xmlText = $NuspecXml.CreateTextNode($PSBoundParameters.${ParamKey})
+        $xmlElt.AppendChild($xmlText)
+        $null    = $NuspecXml.package.metadata.AppendChild($xmlElt)
+      }
     }
   }
 
@@ -210,4 +218,29 @@ Param
 
 } # function
 
+# # Document creation
+# [xml]$xmlDoc = New-Object system.Xml.XmlDocument
+# $xmlDoc.LoadXml("<?xml version=`"1.0`" encoding=`"utf-8`"?><Racine></Racine>")
+
+# # Creation of a node and its text
+# $xmlElt = $xmlDoc.CreateElement("Machine")
+# $xmlText = $xmlDoc.CreateTextNode("Mach1")
+# $xmlElt.AppendChild($xmlText)
+
+# # Creation of a sub node
+# $xmlSubElt = $xmlDoc.CreateElement("Adapters")
+# $xmlSubText = $xmlDoc.CreateTextNode("Network")
+# $xmlSubElt.AppendChild($xmlSubText)
+# $xmlElt.AppendChild($xmlSubElt)
+
+# # Creation of an attribute in the principal node
+# $xmlAtt = $xmlDoc.CreateAttribute("IP")
+# $xmlAtt.Value = "128.200.1.1"
+# $xmlElt.Attributes.Append($xmlAtt)
+
+# # Add the node to the document
+# $xmlDoc.LastChild.AppendChild($xmlElt);
+
+# # Store to a file 
+# $xmlDoc.Save("c:\Temp\Temp\Fic.xml")
 
