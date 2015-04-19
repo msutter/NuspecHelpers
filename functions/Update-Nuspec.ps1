@@ -136,8 +136,8 @@ Param
   # Update Metadata String Params values
   foreach ($ParamKey in $MetadataStringParams ) {
     if ($PSBoundParameters.ContainsKey($ParamKey)) {
-      # Still existing ?
-      if ( $NuspecXml.package.metadata.${ParamKey}) {
+      # Existing ?
+      if ( -not [Object]::ReferenceEquals($NuspecXml.package.metadata.${ParamKey}, $null)) {
         $NuspecXml.package.metadata.${ParamKey} = $PSBoundParameters.${ParamKey}
       } else {
         $xmlElt  = $NuspecXml.CreateElement($ParamKey, $xmlns)
@@ -156,7 +156,7 @@ Param
 
     Confirm-NuspecHashArrayValidity -HashArray $dependencies -MandatoryKeys $DepMandatoryKeys -OptionalKeys $DepOptionalKeys
 
-    if ( $NuspecXml.package.metadata.dependencies) {
+    if ($NuspecXml.package.metadata.dependencies) {
       # There are existing deps
       $xmldependencies = $NuspecXml.package.metadata.dependencies
 
