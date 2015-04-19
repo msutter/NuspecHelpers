@@ -9,6 +9,8 @@ Updates a nuspec file.
 Updates a nuspec file.
 Values will be overwritten
 
+frameworkAssemblies, developmentDependency and references not implemented for update
+
 .EXAMPLE
 
 Update-Nuspec C:\packages\myapp.nuspec
@@ -33,6 +35,10 @@ Param
   [Parameter(Mandatory = $false)]
   [string] $version,
 
+  # Specifies the titleversion
+  [Parameter(Mandatory = $false)]
+  [string] $title,
+
   # Specifies the authors
   [Parameter(Mandatory = $false)]
   [string] $authors,
@@ -41,21 +47,41 @@ Param
   [Parameter(Mandatory = $false)]
   [string] $owners,
 
-  # Specifies the projectUrl
-  [Parameter(Mandatory = $false)]
-  [string] $projectUrl,
-
-  # Specifies the requireLicenseAcceptance
-  [Parameter(Mandatory = $false)]
-  [string] $requireLicenseAcceptance,
-
   # Specifies the description
   [Parameter(Mandatory = $false)]
   [string] $description,
 
+  # Specifies the releaseNotes
+  [Parameter(Mandatory = $false)]
+  [string] $releaseNotes,
+
+  # Specifies the summary
+  [Parameter(Mandatory = $false)]
+  [string] $summary,
+
+  # Specifies the language
+  [Parameter(Mandatory = $false)]
+  [string] $language,
+
+  # Specifies the projectUrl
+  [Parameter(Mandatory = $false)]
+  [string] $projectUrl,
+
+  # Specifies the iconUrl
+  [Parameter(Mandatory = $false)]
+  [string] $iconUrl,
+
+  # Specifies the licenseUrl
+  [Parameter(Mandatory = $false)]
+  [string] $licenseUrl,
+
   # Specifies the copyright
   [Parameter(Mandatory = $false)]
   [string] $copyright,
+
+  # Specifies the requireLicenseAcceptance
+  [Parameter(Mandatory = $false)]
+  [string] $requireLicenseAcceptance,
 
   # Specifies the tags
   [Parameter(Mandatory = $false)]
@@ -81,12 +107,18 @@ Param
   $MetadataStringParams = @(
     'id',
     'version',
+    'title',
     'authors',
     'owners',
-    'projectUrl',
-    'requireLicenseAcceptance',
     'description',
+    'releaseNotes',
+    'summary',
+    'language',
+    'projectUrl',
+    'iconUrl',
+    'licenseUrl',
     'copyright',
+    'requireLicenseAcceptance',
     'tags'
   )
 
@@ -110,7 +142,7 @@ Param
       } else {
         $xmlElt  = $NuspecXml.CreateElement($ParamKey, $xmlns)
         $xmlText = $NuspecXml.CreateTextNode($PSBoundParameters.${ParamKey})
-        $xmlElt.AppendChild($xmlText)
+        $null = $xmlElt.AppendChild($xmlText)
         $null    = $NuspecXml.package.metadata.AppendChild($xmlElt)
       }
     }
