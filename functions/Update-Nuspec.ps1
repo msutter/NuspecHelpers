@@ -16,10 +16,7 @@ Update-Nuspec C:\packages\myapp.nuspec
 Updates the given nuspec file with provided parameters.
 
 #>
-[CmdletBinding(
-  SupportsShouldProcess = $true,
-  ConfirmImpact         = "Low"
-)]
+[CmdletBinding()]
 Param
 (
 
@@ -77,6 +74,8 @@ Param
   [switch] $Overwrite
 )
 
+
+
   $MetadataParams = @(
     'id',
     'version',
@@ -111,6 +110,8 @@ Param
   # Update Files
   if ($PSBoundParameters.ContainsKey('files')) {
 
+    Confirm-NuspecFilesHashValidity $files
+
     if ($Overwrite) {
       # clean files
       $xmlfiles = $NuspecXml.package.files
@@ -135,6 +136,7 @@ Param
     $null = $NuspecXml.package.AppendChild($xmlFiles)
   }
 
+
   if ($PSBoundParameters.count -gt 1) {
     # Set up formatting
     $xmlSettings = new-object System.Xml.XmlWriterSettings
@@ -148,3 +150,5 @@ Param
   }
 
 } # function
+
+

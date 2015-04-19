@@ -1,7 +1,7 @@
 $moduleRoot = Split-Path -Path $MyInvocation.MyCommand.Path
 
 # Load all functions
-"$moduleRoot\Functions\*.ps1" |
+"$moduleRoot\functions\*.ps1" |
 Resolve-Path |
 Where-Object -FilterScript {
     -not ($_.ProviderPath.Contains('.Tests.'))
