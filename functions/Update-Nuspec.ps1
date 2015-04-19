@@ -110,21 +110,25 @@ Param
 
   # Update Dependencies
   if ($PSBoundParameters.ContainsKey('dependencies')) {
+
     $DepMandatoryKeys = @('id')
     $DepOptionalKeys = @('version')
 
     Confirm-NuspecHashArrayValidity -HashArray $dependencies -MandatoryKeys $DepMandatoryKeys -OptionalKeys $DepOptionalKeys
 
-    #Confirm-NuspecDependenciesHashValidity $dependencies
-    if ($ResetDependencies) {
-      # clean dependencies
+    if ( $NuspecXml.package.metadata.dependencies) {
+      # There are existing deps
       $xmldependencies = $NuspecXml.package.metadata.dependencies
-      $null     = $NuspecXml.package.metadata.RemoveChild($xmldependencies)
 
-      # Create a new dependencies element
-      $xmlDependencies = $NuspecXml.CreateElement('dependencies', $xmlns)
+      # Check if they should be reseted
+      if ($ResetDependencies) {
+        $null = $NuspecXml.package.metadata.RemoveChild($xmldependencies)
+        $xmlDependencies = $NuspecXml.CreateElement('dependencies', $xmlns)
+      }
+
     } else {
-      $xmlDependencies = $NuspecXml.package.metadata.dependencies
+      # No existing deps, creating the element
+      $xmlDependencies = $NuspecXml.CreateElement('dependencies', $xmlns)
     }
 
     foreach($dependency in $dependencies) {
@@ -154,15 +158,19 @@ Param
 
     Confirm-NuspecHashArrayValidity -HashArray $files -MandatoryKeys $FileMandatoryKeys -OptionalKeys $FileOptionalKeys
 
-    if ($ResetFiles) {
-      # clean files
-      $xmlfiles = $NuspecXml.package.files
-      $null     = $NuspecXml.package.RemoveChild($xmlfiles)
-
-      # Create a new files element
-      $xmlFiles = $NuspecXml.CreateElement('files', $xmlns)
-    } else {
+    if ( $NuspecXml.package.files) {
+      # There are existing files
       $xmlFiles = $NuspecXml.package.files
+
+      # Check if they should be reseted
+      if ($ResetFiles) {
+        $null = $NuspecXml.package.RemoveChild($xmlFiles)
+        $xmlFiles = $NuspecXml.CreateElement('files', $xmlns)
+      }
+
+    } else {
+      # No existing deps, creating the element
+      $xmlFiles = $NuspecXml.CreateElement('files', $xmlns)
     }
 
     foreach($file in $files) {
@@ -182,7 +190,7 @@ Param
         $null = $xmlFile.Attributes.Append($xmlExclude)
       }
 
-      $null = $xmlfiles.AppendChild($xmlFile)
+      $null = $xmlFiles.AppendChild($xmlFile)
     }
     $null = $NuspecXml.package.AppendChild($xmlFiles)
   }
