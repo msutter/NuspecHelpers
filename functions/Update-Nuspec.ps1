@@ -69,14 +69,16 @@ Param
   [Parameter(Mandatory = $false)]
   [hashtable[]] $files,
 
-  # Specifies the Replace
+  # Specifies the ResetFiles
   [Parameter(Mandatory = $false)]
-  [switch] $Overwrite
+  [switch] $ResetFiles,
+
+  # Specifies the ResetDependencies
+  [Parameter(Mandatory = $false)]
+  [switch] $ResetDependencies
 )
 
-
-
-  $MetadataParams = @(
+  $MetadataStringParams = @(
     'id',
     'version',
     'authors',
@@ -85,8 +87,7 @@ Param
     'requireLicenseAcceptance',
     'description',
     'copyright',
-    'tags',
-    'dependencies'
+    'tags'
   )
 
   # Set absolute path
@@ -100,19 +101,60 @@ Param
   $NuspecXml = Get-Nuspec $AbsPath
   $xmlns = $NuspecXml.DocumentElement.NamespaceURI
 
-  # Update metadata values
-  foreach ($ParamKey in $MetadataParams ) {
+  # Update Metadata String Params values
+  foreach ($ParamKey in $MetadataStringParams ) {
     if ($PSBoundParameters.ContainsKey($ParamKey)) {
       $NuspecXml.package.metadata.${ParamKey} = $PSBoundParameters.${ParamKey}
     }
   }
 
+  # Update Dependencies
+  if ($PSBoundParameters.ContainsKey('dependencies')) {
+    $DepMandatoryKeys = @('id')
+    $DepOptionalKeys = @('version')
+
+    Confirm-NuspecHashArrayValidity -HashArray $dependencies -MandatoryKeys $DepMandatoryKeys -OptionalKeys $DepOptionalKeys
+
+    #Confirm-NuspecDependenciesHashValidity $dependencies
+    if ($ResetDependencies) {
+      # clean dependencies
+      $xmldependencies = $NuspecXml.package.metadata.dependencies
+      $null     = $NuspecXml.package.metadata.RemoveChild($xmldependencies)
+
+      # Create a new dependencies element
+      $xmlDependencies = $NuspecXml.CreateElement('dependencies', $xmlns)
+    } else {
+      $xmlDependencies = $NuspecXml.package.metadata.dependencies
+    }
+
+    foreach($dependency in $dependencies) {
+      $xmlFile = $NuspecXml.CreateElement('dependency', $xmlns)
+
+      $xmlId = $NuspecXml.CreateAttribute('id')
+      $xmlId.Value = $dependency.id
+      $null = $xmlFile.Attributes.Append($xmlId)
+
+      if ($dependency.version) {
+        $xmlVersion = $NuspecXml.CreateAttribute('version')
+        $xmlVersion.Value = $dependency.version
+        $null = $xmlFile.Attributes.Append($xmlVersion)
+      }
+
+      $null = $xmldependencies.AppendChild($xmlFile)
+    }
+    $null = $NuspecXml.package.metadata.AppendChild($xmlDependencies)
+  }
+
+
   # Update Files
   if ($PSBoundParameters.ContainsKey('files')) {
 
-    Confirm-NuspecFilesHashValidity $files
+    $FileMandatoryKeys = @('src','target')
+    $FileOptionalKeys = @('exclude')
 
-    if ($Overwrite) {
+    Confirm-NuspecHashArrayValidity -HashArray $files -MandatoryKeys $FileMandatoryKeys -OptionalKeys $FileOptionalKeys
+
+    if ($ResetFiles) {
       # clean files
       $xmlfiles = $NuspecXml.package.files
       $null     = $NuspecXml.package.RemoveChild($xmlfiles)
@@ -125,12 +167,21 @@ Param
 
     foreach($file in $files) {
       $xmlFile = $NuspecXml.CreateElement('file', $xmlns)
+
       $xmlSrc = $NuspecXml.CreateAttribute('src')
       $xmlSrc.Value = $file.src
+      $null = $xmlFile.Attributes.Append($xmlSrc)
+
       $xmlTarget = $NuspecXml.CreateAttribute('target')
       $xmlTarget.Value = $file.target
-      $null = $xmlFile.Attributes.Append($xmlSrc)
       $null = $xmlFile.Attributes.Append($xmlTarget)
+
+      if ($file.exclude) {
+        $xmlExclude = $NuspecXml.CreateAttribute('exclude')
+        $xmlExclude.Value = $file.exclude
+        $null = $xmlFile.Attributes.Append($xmlExclude)
+      }
+
       $null = $xmlfiles.AppendChild($xmlFile)
     }
     $null = $NuspecXml.package.AppendChild($xmlFiles)
