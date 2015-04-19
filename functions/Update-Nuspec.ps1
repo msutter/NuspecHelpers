@@ -156,11 +156,11 @@ Param
 
     Confirm-NuspecHashArrayValidity -HashArray $dependencies -MandatoryKeys $DepMandatoryKeys -OptionalKeys $DepOptionalKeys
 
-    if ($NuspecXml.package.metadata.dependencies) {
-      # There are existing deps
-      $xmldependencies = $NuspecXml.package.metadata.dependencies
+    if ( -not [Object]::ReferenceEquals($NuspecXml.package.metadata.dependencies, $null)) {
+      # Node exists
+      $xmldependencies = $NuspecXml.package.metadata.ChildNodes | where-object { $_.name -eq 'dependencies'}
 
-      # Check if they should be reseted
+      # Check if childs should be reseted
       if ($ResetDependencies) {
         $null = $NuspecXml.package.metadata.RemoveChild($xmldependencies)
         $xmlDependencies = $NuspecXml.CreateElement('dependencies', $xmlns)
@@ -198,11 +198,11 @@ Param
 
     Confirm-NuspecHashArrayValidity -HashArray $files -MandatoryKeys $FileMandatoryKeys -OptionalKeys $FileOptionalKeys
 
-    if ( $NuspecXml.package.files) {
-      # There are existing files
-      $xmlFiles = $NuspecXml.package.files
+    if ( -not [Object]::ReferenceEquals($NuspecXml.package.files, $null)) {
+      # Node exists
+      $xmlFiles = $NuspecXml.package.ChildNodes | where-object { $_.name -eq 'files'}
 
-      # Check if they should be reseted
+      # Check if childs should be reseted
       if ($ResetFiles) {
         $null = $NuspecXml.package.RemoveChild($xmlFiles)
         $xmlFiles = $NuspecXml.CreateElement('files', $xmlns)
