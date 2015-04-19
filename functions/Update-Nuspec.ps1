@@ -9,7 +9,7 @@ Updates a nuspec file.
 Updates a nuspec file.
 Values will be overwritten
 
-frameworkAssemblies, developmentDependency and references not implemented for update
+Note: frameworkAssemblies, developmentDependency and references not implemented.
 
 .EXAMPLE
 
@@ -133,17 +133,20 @@ Param
   $NuspecXml = Get-Nuspec $AbsPath
   $xmlns = $NuspecXml.DocumentElement.NamespaceURI
 
+  # Get metadata node (it must exists)
+  $xmlMetaData = $NuspecXml.package.ChildNodes | where-object { $_.name -eq 'metadata'}
+
   # Update Metadata String Params values
   foreach ($ParamKey in $MetadataStringParams ) {
     if ($PSBoundParameters.ContainsKey($ParamKey)) {
       # Existing ?
-      if ( -not [Object]::ReferenceEquals($NuspecXml.package.metadata.${ParamKey}, $null)) {
-        $NuspecXml.package.metadata.${ParamKey} = $PSBoundParameters.${ParamKey}
+      if ( -not [Object]::ReferenceEquals($xmlMetaData.${ParamKey}, $null)) {
+        $xmlMetaData.${ParamKey} = $PSBoundParameters.${ParamKey}
       } else {
         $xmlElt  = $NuspecXml.CreateElement($ParamKey, $xmlns)
         $xmlText = $NuspecXml.CreateTextNode($PSBoundParameters.${ParamKey})
         $null = $xmlElt.AppendChild($xmlText)
-        $null    = $NuspecXml.package.metadata.AppendChild($xmlElt)
+        $null    = $xmlMetaData.AppendChild($xmlElt)
       }
     }
   }
@@ -156,13 +159,13 @@ Param
 
     Confirm-NuspecHashArrayValidity -HashArray $dependencies -MandatoryKeys $DepMandatoryKeys -OptionalKeys $DepOptionalKeys
 
-    if ( -not [Object]::ReferenceEquals($NuspecXml.package.metadata.dependencies, $null)) {
+    if ( -not [Object]::ReferenceEquals($xmlMetaData.dependencies, $null)) {
       # Node exists
-      $xmldependencies = $NuspecXml.package.metadata.ChildNodes | where-object { $_.name -eq 'dependencies'}
+      $xmldependencies = $xmlMetaData.ChildNodes | where-object { $_.name -eq 'dependencies'}
 
       # Check if childs should be reseted
       if ($ResetDependencies) {
-        $null = $NuspecXml.package.metadata.RemoveChild($xmldependencies)
+        $null = $xmlMetaData.RemoveChild($xmldependencies)
         $xmlDependencies = $NuspecXml.CreateElement('dependencies', $xmlns)
       }
 
@@ -186,7 +189,7 @@ Param
 
       $null = $xmldependencies.AppendChild($xmlFile)
     }
-    $null = $NuspecXml.package.metadata.AppendChild($xmlDependencies)
+    $null = $xmlMetaData.AppendChild($xmlDependencies)
   }
 
 
@@ -237,15 +240,17 @@ Param
 
 
   if ($PSBoundParameters.count -gt 1) {
-    # Set up formatting
-    $xmlSettings = new-object System.Xml.XmlWriterSettings
-    $xmlSettings.Indent = $true
-    $xmlSettings.NewLineOnAttributes = $false
 
-    # Create an XmlWriter and save the modified XML document
-    $xmlWriter = [Xml.XmlWriter]::Create($AbsPath, $xmlSettings)
-    $NuspecXml.Save($xmlWriter)
-    $xmlWriter.Close()
+  # Set up formatting
+  $xmlSettings = new-object System.Xml.XmlWriterSettings
+  $xmlSettings.Indent = $true
+  $xmlSettings.NewLineOnAttributes = $false
+
+  # Create an XmlWriter and save the modified XML document
+  $xmlWriter = [Xml.XmlWriter]::Create($AbsPath, $xmlSettings)
+  $null = $NuspecXml.Save($xmlWriter)
+  $null = $xmlWriter.Close()
+
   }
 
 }
