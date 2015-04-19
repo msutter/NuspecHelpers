@@ -248,31 +248,6 @@ Param
     $xmlWriter.Close()
   }
 
-} # function
+}
 
-# # Document creation
-# [xml]$xmlDoc = New-Object system.Xml.XmlDocument
-# $xmlDoc.LoadXml("<?xml version=`"1.0`" encoding=`"utf-8`"?><Racine></Racine>")
-
-# # Creation of a node and its text
-# $xmlElt = $xmlDoc.CreateElement("Machine")
-# $xmlText = $xmlDoc.CreateTextNode("Mach1")
-# $xmlElt.AppendChild($xmlText)
-
-# # Creation of a sub node
-# $xmlSubElt = $xmlDoc.CreateElement("Adapters")
-# $xmlSubText = $xmlDoc.CreateTextNode("Network")
-# $xmlSubElt.AppendChild($xmlSubText)
-# $xmlElt.AppendChild($xmlSubElt)
-
-# # Creation of an attribute in the principal node
-# $xmlAtt = $xmlDoc.CreateAttribute("IP")
-# $xmlAtt.Value = "128.200.1.1"
-# $xmlElt.Attributes.Append($xmlAtt)
-
-# # Add the node to the document
-# $xmlDoc.LastChild.AppendChild($xmlElt);
-
-# # Store to a file 
-# $xmlDoc.Save("c:\Temp\Temp\Fic.xml")
 
