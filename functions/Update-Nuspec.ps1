@@ -196,8 +196,8 @@ Param
   # Update Files
   if ($PSBoundParameters.ContainsKey('files')) {
 
-    $FileMandatoryKeys = @('src','target')
-    $FileOptionalKeys = @('exclude')
+    $FileMandatoryKeys = @('src')
+    $FileOptionalKeys = @('exclude','target')
 
     Confirm-NuspecHashArrayValidity -HashArray $files -MandatoryKeys $FileMandatoryKeys -OptionalKeys $FileOptionalKeys
 
@@ -223,10 +223,11 @@ Param
       $xmlSrc.Value = $file.src
       $null = $xmlFile.Attributes.Append($xmlSrc)
 
-      $xmlTarget = $NuspecXml.CreateAttribute('target')
-      $xmlTarget.Value = $file.target
-      $null = $xmlFile.Attributes.Append($xmlTarget)
-
+      if ($file.target) {
+        $xmlTarget = $NuspecXml.CreateAttribute('target')
+        $xmlTarget.Value = $file.target
+        $null = $xmlFile.Attributes.Append($xmlTarget)
+      }
       if ($file.exclude) {
         $xmlExclude = $NuspecXml.CreateAttribute('exclude')
         $xmlExclude.Value = $file.exclude
