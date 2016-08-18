@@ -41,7 +41,24 @@ Param
       $AbsModulePath = Join-Path (Get-Location) $ModulePath
   }
 
-  $ModuleManifestPath = (Get-ChildItem $AbsModulePath -Filter *.psd1).FullName
+  # Choose correct manifest, prefer manifest with same name as parent folder
+  $ModulePSDs = (Get-ChildItem $AbsModulePath -Filter *.psd1).FullName
+  if (($ModulePSDs | measure).count -gt 1){
+    $ModulePSDs | % {
+      $ModulePSDFragments = $_ -split '\\' -split '\.'
+      [Array]::Reverse($ModulePSDFragments)
+      if ($ModulePSDFragments[1] -like $ModulePSDFragments[2]){
+        $ModuleManifestPath = $_
+        break
+      }
+    }
+    if ($ModuleManifestPath -eq $null){
+      throw "Multiple psd1 found, but no match between parent directory and psd1 file name. Ambigious module manifest."
+    }
+  } else {
+    #TODO: For backwards compatibilty allow psd1 which doesn't match the parent directory name.
+    $ModuleManifestPath = $ModulePSDs
+  }
 
   $Manifest = Get-ModuleManifest $ModuleManifestPath
 
@@ -82,7 +99,7 @@ Param
   } else {
    $null = $NuspecParams.Add('description', $Manifest.Name )
   }
-
+  
   if ($Manifest.ModuleVersion) { $null = $NuspecParams.Add('version', $Manifest.ModuleVersion )}
   if ($Manifest.Name) { $null = $NuspecParams.Add('title', $Manifest.Name )}
   if ($Manifest.Author) { $null = $NuspecParams.Add('authors', $Manifest.Author )}
