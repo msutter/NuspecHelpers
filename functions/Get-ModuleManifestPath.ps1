@@ -19,7 +19,7 @@ function Get-ModuleManifestPath {
       # Module path (C:\modules\mymodule)
       [ValidateScript( { Test-Path($_) -PathType Container } )]
       [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true )]
-      $ModulePath,
+      $ModulePath
     )
 
     if ([System.IO.Path]::IsPathRooted($ModulePath)) {
