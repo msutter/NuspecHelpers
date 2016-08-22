@@ -12,7 +12,7 @@
 RootModule = 'NuspecHelpers.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.3'
+ModuleVersion = '1.0.4'
 
 # ID used to uniquely identify this module
 GUID = 'd2f82bbe-44b0-4a59-9f69-5a9e063e32da'
