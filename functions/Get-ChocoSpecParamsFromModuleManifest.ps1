@@ -27,8 +27,7 @@ Param
       $AbsModulePath = Join-Path (Get-Location) $ModulePath
   }
 
-  $ModuleManifestPath = (Get-ChildItem $AbsModulePath -Filter *.psd1).FullName
-
+  $ModuleManifestPath = Get-ModuleManifestPath $AbsModulePath
   $Manifest = Get-ModuleManifest $ModuleManifestPath
 
   $Dependencies = @()

@@ -16,7 +16,7 @@ function Get-ModuleManifest {
     [CmdletBinding()]
     Param
     (
-        # Specifies the nuspec files to update
+        # psd1 file path
         [ValidateScript( { Test-Path($_) -PathType Leaf -Include *.psd1 } )]
         [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true )]
         $Path
@@ -33,9 +33,6 @@ function Get-ModuleManifest {
 
     $ModuleData = (Get-Content -Raw $AbsPath) | iex
     $null = $ModuleData.add('Name',$ModuleName)
-
-    # $ModuleData = Test-ModuleManifest $AbsPath
-    # $ModuleData
 
     $ModuleData
 }
