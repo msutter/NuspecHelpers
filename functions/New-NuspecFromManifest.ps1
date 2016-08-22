@@ -44,11 +44,11 @@ Param
   # Choose correct manifest, prefer manifest with same name as parent folder
   $ModulePSDs = (Get-ChildItem $AbsModulePath -Filter *.psd1).FullName
   if (($ModulePSDs | measure).count -gt 1){
-    $ModulePSDs | % {
-      $ModulePSDFragments = $_ -split '\\' -split '\.'
+    foreach ($ModulePSD in $ModulePSDs) {
+      $ModulePSDFragments = $ModulePSD -split '\\' -split '\.'
       [Array]::Reverse($ModulePSDFragments)
       if ($ModulePSDFragments[1] -like $ModulePSDFragments[2]){
-        $ModuleManifestPath = $_
+        $ModuleManifestPath = $ModulePSD
         break
       }
     }
@@ -99,7 +99,7 @@ Param
   } else {
    $null = $NuspecParams.Add('description', $Manifest.Name )
   }
-  
+
   if ($Manifest.ModuleVersion) { $null = $NuspecParams.Add('version', $Manifest.ModuleVersion )}
   if ($Manifest.Name) { $null = $NuspecParams.Add('title', $Manifest.Name )}
   if ($Manifest.Author) { $null = $NuspecParams.Add('authors', $Manifest.Author )}
