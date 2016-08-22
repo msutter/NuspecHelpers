@@ -152,7 +152,7 @@ Param
   }
 
   # Update Dependencies
-  if ($PSBoundParameters.ContainsKey('dependencies')) {
+  if ($PSBoundParameters.ContainsKey('dependencies') -And ($dependencies.count -gt 0)) {
 
     $DepMandatoryKeys = @('id')
     $DepOptionalKeys = @('version')
